@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
+import PatientRegistration from './components/PatientRegistration';
 
 function App() {
   const [patients, setPatients] = useState([]);
@@ -26,6 +27,13 @@ function App() {
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial' }}>
       <h1>Clinic Appointment System (CASS)</h1>
+      
+      {/* Patient Registration Form */}
+      <PatientRegistration />
+      
+      <hr style={{ margin: '40px 0' }} />
+      
+      {/* Patients List */}
       <h2>Patients List</h2>
       {loading ? (
         <p>Loading patients...</p>
