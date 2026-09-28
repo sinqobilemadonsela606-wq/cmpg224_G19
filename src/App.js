@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
 import PatientRegistration from './components/PatientRegistration';
 import BookingForm from './components/appointments/BookingForm';
+import PatientSearch from './components/PatientSearch';
 
 function App() {
   const [patients, setPatients] = useState([]);
@@ -26,7 +27,7 @@ function App() {
   }, []);
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial' }}>
+    <div style={{ padding: '20px', fontFamily: 'Arial', maxWidth: '800px', margin: '0 auto' }}>
       <h1>Clinic Appointment System (CASS)</h1>
 
       {/* Patient Registration Form */}
@@ -34,14 +35,19 @@ function App() {
 
       <hr style={{ margin: '40px 0' }} />
 
-      {/* Patients List */}
-      <h2>Patients List</h2>
+      {/* Patient Search Component (FR07) */}
+      <PatientSearch />
+
+      <hr style={{ margin: '40px 0' }} />
+
+      {/* All Patients List */}
+      <h2>All Patients List</h2>
       {loading ? (
         <p>Loading patients...</p>
       ) : (
         <ul>
           {patients.map((patient) => (
-            <li key={patient.id}>
+            <li key={patient.id || patient.patient_id}>
               {patient.first_name} {patient.last_name} – {patient.email || 'No email'}
             </li>
           ))}
