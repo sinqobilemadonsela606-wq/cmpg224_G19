@@ -22,7 +22,7 @@ function PatientRegistration() {
     setLoading(true);
     setMessage('');
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('patients')
       .insert([formData]);
 
