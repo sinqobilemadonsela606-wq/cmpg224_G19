@@ -1,20 +1,35 @@
+// src/App.js
+// Root of the CASS app.
+// - Wraps everything in AuthProvider (FR01/FR02)
+// - Sets up routing with /login and protected routes
+// - Calls useInactivityLogout for 30-min auto-logout (FR03)
+
 import React, { useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+
 import { supabase } from './supabaseClient';
+import { AuthProvider } from './context/AuthContext';
+import useInactivityLogout from './hooks/useInactivityLogout';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import Login from './components/auth/Login';
+
+// Existing feature components
 import PatientRegistration from './components/PatientRegistration';
-import BookingForm from './components/appointments/BookingForm';
 import PatientSearch from './components/PatientSearch';
+import BookingForm from './components/appointments/BookingForm';
 import AppointmentList from './components/appointments/AppointmentList';
 
-function App() {
+// ---------- Dashboard (any logged-in user) ----------
+function Dashboard() {
+  // FR03 - 30-minute inactivity auto-logout
+  useInactivityLogout();
+
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchPatients = async () => {
-      const { data, error } = await supabase
-        .from('patients')
-        .select('*');
-
+      const { data, error } = await supabase.from('patients').select('*');
       if (error) {
         console.error('Error fetching patients:', error);
         alert('Supabase connection error! Check console.');
@@ -23,7 +38,6 @@ function App() {
       }
       setLoading(false);
     };
-
     fetchPatients();
   }, []);
 
@@ -31,17 +45,14 @@ function App() {
     <div style={{ padding: '20px', fontFamily: 'Arial', maxWidth: '800px', margin: '0 auto' }}>
       <h1>Clinic Appointment System (CASS)</h1>
 
-      {/* Patient Registration Form */}
       <PatientRegistration />
 
       <hr style={{ margin: '40px 0' }} />
 
-      {/* Patient Search Component (FR07) */}
       <PatientSearch />
 
       <hr style={{ margin: '40px 0' }} />
 
-      {/* All Patients List */}
       <h2>All Patients List</h2>
       {loading ? (
         <p>Loading patients...</p>
@@ -57,14 +68,56 @@ function App() {
 
       <hr style={{ margin: '40px 0' }} />
 
-      {/* Booking Form (FR09) */}
       <BookingForm />
 
       <hr style={{ margin: '40px 0' }} />
 
-      {/* Appointment Management (FR12) */}
       <AppointmentList />
     </div>
+  );
+}
+
+// ---------- Admin dashboard (FR04, FR06, FR08 — coming later) ----------
+function AdminDashboard() {
+  useInactivityLogout();
+  return (
+    <div style={{ padding: '20px', fontFamily: 'Arial' }}>
+      <h1>Admin Dashboard</h1>
+      <p>Admin-only tools will live here (FR04, FR06, FR08).</p>
+    </div>
+  );
+}
+
+// ---------- Root ----------
+function App() {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute role="admin">
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
