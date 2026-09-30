@@ -16,10 +16,12 @@ create table if not exists public.practitioners (
   specialty text,
   available_days text[],              -- e.g. {'Mon','Tue','Wed'}
   available_start time,
-  available_end time,
+  available_end time, 
   is_active boolean default true,
-  created_at timestamp with time zone default now()
+  created_at timestamp with time zone default now(),
+  constraint practitioners_full_name_unique unique (full_name)
 );
+  
 
 alter table public.practitioners enable row level security;
 
