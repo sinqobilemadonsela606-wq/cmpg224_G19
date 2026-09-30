@@ -1,127 +1,122 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 
-function PatientSearch() {
-  const [searchType, setSearchType] = useState('name'); // 'name' or 'id'
-  const [queryTerm, setQueryTerm] = useState('');
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [executionTime, setExecutionTime] = useState(null);
-  const [message, setMessage] = useState('');
+export default function PatientSearch() {
+  const [patients, setPatients] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedPatient, setSelectedPatient] = useState(null);
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!queryTerm.trim()) {
-      setMessage('⚠️ Please enter a search query.');
-      return;
-    }
-
-    setMessage('');
-    setLoading(true);
-    const startTime = performance.now();
-
-    try {
-      // EDITED: Select 'id' instead of 'patient_id' to match the database migration schema
-      let query = supabase
-        .from('patients')
-        .select('id, first_name, last_name, phone, email, created_at');
-
-      if (searchType === 'name') {
-        // Partial search across last name or first name
-        query = query.or(`last_name.ilike.%${queryTerm}%,first_name.ilike.%${queryTerm}%`);
-      } else if (searchType === 'id') {
-        // Exact match for patient UUID (`id`)
-        query = query.eq('id', queryTerm.trim());
+  // Fetch all patients once when the component mounts
+  useEffect(() => {
+    const fetchPatients = async () => {
+      const { data, error } = await supabase.from('patients').select('*');
+      if (error) {
+        console.error('Error fetching patients:', error);
+      } else {
+        setPatients(data || []);
       }
+    };
+    fetchPatients();
+  }, []);
 
-      const { data, error } = await query;
+  // Filter patients locally as you type (matches first name, last name, or email)
+  const filteredPatients = patients.filter((patient) => {
+    const term = searchTerm.toLowerCase();
+    const fullName = `${patient.first_name || ''} ${patient.last_name || ''}`.toLowerCase();
+    const email = (patient.email || '').toLowerCase();
+    return fullName.includes(term) || email.includes(term);
+  });
 
-      if (error) throw error;
-
-      const endTime = performance.now();
-      setExecutionTime(((endTime - startTime) / 1000).toFixed(2)); // seconds
-      setResults(data || []);
-      
-      if (data.length === 0) {
-        setMessage('ℹ️ No patient records found.');
-      }
-    } catch (err) {
-      console.error('Error searching patients:', err.message);
-      setMessage('❌ Error: ' + err.message);
-    } finally {
-      setLoading(false);
-    }
+  // Clean ID helper (keeps it under 12 characters: # + 8 chars = 9 characters)
+  const formatCuteId = (id) => {
+    if (!id) return 'No ID';
+    return `#${String(id).substring(0, 8).toUpperCase()}`;
   };
 
   return (
-    <div style={{ maxWidth: '650px', margin: '20px auto', padding: '20px', border: '1px solid #ccc', borderRadius: '8px', fontFamily: 'sans-serif' }}>
-      <h2>Search Patients</h2>
+    <div style={{ padding: '20px', background: '#f9f9f9', borderRadius: '8px', border: '1px solid #ddd' }}>
+      <h2>Patient Search</h2>
       
-      <form onSubmit={handleSearch} style={{ marginBottom: '20px' }}>
-        <div style={{ marginBottom: '10px' }}>
-          <label style={{ marginRight: '10px', fontWeight: 'bold' }}>Search By:</label>
-          <select value={searchType} onChange={(e) => setSearchType(e.target.value)} style={{ padding: '5px' }}>
-            <option value="name">Patient Name</option>
-            <option value="id">Patient UUID</option>
-          </select>
+      <input 
+        type="text" 
+        placeholder="Type to filter patients..." 
+        value={searchTerm}
+        onChange={(e) => {
+          setSearchTerm(e.target.value);
+          setSelectedPatient(null); // Reset view when typing a new search
+        }}
+        style={{ 
+          width: '100%', 
+          padding: '10px', 
+          borderRadius: '6px', 
+          border: '1px solid #ccc',
+          fontSize: '16px',
+          marginBottom: '15px'
+        }}
+      />
+
+      {/* Show search results list only when typing and no patient is selected */}
+      {searchTerm.trim() !== '' && !selectedPatient && (
+        <ul style={{ listStyle: 'none', padding: 0, background: '#fff', borderRadius: '6px', border: '1px solid #ddd' }}>
+          {filteredPatients.length > 0 ? (
+            filteredPatients.map((patient) => (
+              <li 
+                key={patient.id || patient.patient_id} 
+                onClick={() => setSelectedPatient(patient)}
+                style={{ 
+                  padding: '12px', 
+                  borderBottom: '1px solid #eee', 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#f1f5f9'}
+                onMouseLeave={(e) => e.currentTarget.style.background = '#fff'}
+              >
+                <div>
+                  <strong>{patient.first_name} {patient.last_name}</strong>
+                  <br />
+                  <small style={{ color: '#666' }}>{patient.email || 'No email'}</small>
+                </div>
+                
+                {/* Cute ID Tag */}
+                <span style={{ 
+                  background: '#e2e8f0', 
+                  color: '#334155', 
+                  padding: '4px 8px', 
+                  borderRadius: '6px', 
+                  fontWeight: 'bold',
+                  fontSize: '0.85em'
+                }}>
+                  {formatCuteId(patient.id || patient.patient_id)}
+                </span>
+              </li>
+            ))
+          ) : (
+            <li style={{ padding: '12px', color: '#888' }}>No matching patients found.</li>
+          )}
+        </ul>
+      )}
+
+      {/* Selected Patient Detailed View Card */}
+      {selectedPatient && (
+        <div style={{ marginTop: '15px', padding: '15px', background: '#fff', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+            <h3 style={{ margin: 0, color: '#1e293b' }}>Patient Profile</h3>
+            <button 
+              onClick={() => setSelectedPatient(null)}
+              style={{ background: '#64748b', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer' }}
+            >
+              Back to Search
+            </button>
+          </div>
+          <p><strong>Name:</strong> {selectedPatient.first_name} {selectedPatient.last_name}</p>
+          <p><strong>Email:</strong> {selectedPatient.email || 'N/A'}</p>
+          <p><strong>Phone:</strong> {selectedPatient.phone || selectedPatient.phone_number || 'N/A'}</p>
+          <p><strong>Patient ID:</strong> {formatCuteId(selectedPatient.id || selectedPatient.patient_id)}</p>
         </div>
-
-        <div style={{ marginBottom: '10px' }}>
-          <input
-            type="text"
-            value={queryTerm}
-            onChange={(e) => setQueryTerm(e.target.value)}
-            placeholder={searchType === 'name' ? "Enter name (e.g. Mokoena)..." : "Enter Patient UUID..."}
-            required
-            style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-          />
-        </div>
-
-        <button type="submit" disabled={loading} style={{ padding: '8px 15px', background: '#007BFF', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-          {loading ? 'Searching...' : 'Search Patient'}
-        </button>
-      </form>
-
-      {message && <p>{message}</p>}
-      {executionTime && <p style={{ fontSize: '12px', color: '#666' }}>Query Execution Time: {executionTime}s</p>}
-
-      {/* Results Table */}
-      <div style={{ marginTop: '20px' }}>
-        <h3>Search Results</h3>
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
-          <thead>
-            <tr style={{ background: '#f4f4f4', textAlign: 'left' }}>
-              <th style={{ border: '1px solid #ddd', padding: '8px' }}>UUID (ID)</th>
-              <th style={{ border: '1px solid #ddd', padding: '8px' }}>Full Name</th>
-              <th style={{ border: '1px solid #ddd', padding: '8px' }}>Contact</th>
-              <th style={{ border: '1px solid #ddd', padding: '8px' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {results.length > 0 ? (
-              results.map((patient) => (
-                <tr key={patient.id}>
-                  <td style={{ border: '1px solid #ddd', padding: '8px', fontFamily: 'monospace', fontSize: '11px' }}>{patient.id}</td>
-                  <td style={{ border: '1px solid #ddd', padding: '8px' }}>{patient.last_name}, {patient.first_name}</td>
-                  <td style={{ border: '1px solid #ddd', padding: '8px', fontSize: '12px' }}>{patient.phone || patient.email || 'None'}</td>
-                  <td style={{ border: '1px solid #ddd', padding: '8px' }}>
-                    <button onClick={() => alert(`View details for ID: ${patient.id}`)} style={{ marginRight: '5px' }}>[View]</button>
-                    <button onClick={() => alert(`Edit record for ID: ${patient.id}`)}>[Edit]</button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="4" style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center', color: '#666' }}>
-                  {loading ? 'Querying database...' : 'No results to display.'}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      )}
     </div>
   );
 }
-
-export default PatientSearch;
