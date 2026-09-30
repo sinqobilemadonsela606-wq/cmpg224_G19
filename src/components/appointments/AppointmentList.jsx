@@ -105,7 +105,12 @@ export default function AppointmentList() {
                 border: '1px solid #ccc' 
               }}
             >
-              <p><strong>Patient ID:</strong> #{String(appt.patient_id).substring(0, 8).toUpperCase()}</p>
+              <p>
+                <strong>Patient ID:</strong>{' '}
+                <code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px' }}>
+                  {appt.patient_id}
+                </code>
+              </p>
               <p><strong>Date & Time:</strong> {new Date(appt.appointment_date).toLocaleString()}</p>
               <p>
                 <strong>Status:</strong>{' '}
