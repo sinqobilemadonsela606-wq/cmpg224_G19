@@ -19,19 +19,15 @@ export default function PatientSearch() {
     fetchPatients();
   }, []);
 
-  // Filter patients locally as you type (matches first name, last name, or email)
+  // Filter patients locally by name, email, or contact number
   const filteredPatients = patients.filter((patient) => {
     const term = searchTerm.toLowerCase();
     const fullName = `${patient.first_name || ''} ${patient.last_name || ''}`.toLowerCase();
     const email = (patient.email || '').toLowerCase();
-    return fullName.includes(term) || email.includes(term);
+    const phone = String(patient.phone || patient.phone_number || '').toLowerCase();
+    
+    return fullName.includes(term) || email.includes(term) || phone.includes(term);
   });
-
-  // Clean ID helper (keeps it under 12 characters: # + 8 chars = 9 characters)
-  const formatCuteId = (id) => {
-    if (!id) return 'No ID';
-    return `#${String(id).substring(0, 8).toUpperCase()}`;
-  };
 
   return (
     <div style={{ padding: '20px', background: '#f9f9f9', borderRadius: '8px', border: '1px solid #ddd' }}>
@@ -39,11 +35,11 @@ export default function PatientSearch() {
       
       <input 
         type="text" 
-        placeholder="Type to filter patients..." 
+        placeholder="Search by name, email, or contact number..." 
         value={searchTerm}
         onChange={(e) => {
           setSearchTerm(e.target.value);
-          setSelectedPatient(null); // Reset view when typing a new search
+          setSelectedPatient(null);
         }}
         style={{ 
           width: '100%', 
@@ -77,19 +73,19 @@ export default function PatientSearch() {
                 <div>
                   <strong>{patient.first_name} {patient.last_name}</strong>
                   <br />
-                  <small style={{ color: '#666' }}>{patient.email || 'No email'}</small>
+                  <small style={{ color: '#666' }}>{patient.email || 'No email'} | {patient.phone || patient.phone_number || 'No phone'}</small>
                 </div>
                 
-                {/* Cute ID Tag */}
+                {/* Full Original ID Display */}
                 <span style={{ 
                   background: '#e2e8f0', 
                   color: '#334155', 
                   padding: '4px 8px', 
                   borderRadius: '6px', 
-                  fontWeight: 'bold',
-                  fontSize: '0.85em'
+                  fontSize: '0.8em',
+                  fontFamily: 'monospace'
                 }}>
-                  {formatCuteId(patient.id || patient.patient_id)}
+                  {patient.id || patient.patient_id}
                 </span>
               </li>
             ))
@@ -114,7 +110,7 @@ export default function PatientSearch() {
           <p><strong>Name:</strong> {selectedPatient.first_name} {selectedPatient.last_name}</p>
           <p><strong>Email:</strong> {selectedPatient.email || 'N/A'}</p>
           <p><strong>Phone:</strong> {selectedPatient.phone || selectedPatient.phone_number || 'N/A'}</p>
-          <p><strong>Patient ID:</strong> {formatCuteId(selectedPatient.id || selectedPatient.patient_id)}</p>
+          <p><strong>Full Patient ID:</strong> <code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px' }}>{selectedPatient.id || selectedPatient.patient_id}</code></p>
         </div>
       )}
     </div>
