@@ -3,6 +3,7 @@ import { supabase } from './supabaseClient';
 import PatientRegistration from './components/PatientRegistration';
 import BookingForm from './components/appointments/BookingForm';
 import PatientSearch from './components/PatientSearch';
+import AppointmentList from './components/appointments/AppointmentList';
 
 function App() {
   const [patients, setPatients] = useState([]);
@@ -58,6 +59,11 @@ function App() {
 
       {/* Booking Form (FR09) */}
       <BookingForm />
+
+      <hr style={{ margin: '40px 0' }} />
+
+      {/* Appointment Management (FR12) */}
+      <AppointmentList />
     </div>
   );
 }
