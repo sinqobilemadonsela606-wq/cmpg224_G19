@@ -97,7 +97,7 @@ export default function AppointmentList() {
           {appointments.map((appt) => (
             <li 
               key={appt.id} 
-              style={{ 
+              style={{
                 background: '#fff', 
                 marginBottom: '15px', 
                 padding: '15px', 
