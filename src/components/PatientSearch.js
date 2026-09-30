@@ -19,7 +19,7 @@ export default function PatientSearch() {
     fetchPatients();
   }, []);
 
-  // Filter patients locally by name, email, or contact number
+  // Filter patients locally as you type (matches name, email, or phone/contact)
   const filteredPatients = patients.filter((patient) => {
     const term = searchTerm.toLowerCase();
     const fullName = `${patient.first_name || ''} ${patient.last_name || ''}`.toLowerCase();
@@ -39,7 +39,7 @@ export default function PatientSearch() {
         value={searchTerm}
         onChange={(e) => {
           setSearchTerm(e.target.value);
-          setSelectedPatient(null);
+          setSelectedPatient(null); // Reset profile view when typing a new search
         }}
         style={{ 
           width: '100%', 
@@ -73,16 +73,18 @@ export default function PatientSearch() {
                 <div>
                   <strong>{patient.first_name} {patient.last_name}</strong>
                   <br />
-                  <small style={{ color: '#666' }}>{patient.email || 'No email'} | {patient.phone || patient.phone_number || 'No phone'}</small>
+                  <small style={{ color: '#666' }}>
+                    {patient.email || 'No email'} | {patient.phone || patient.phone_number || 'No contact'}
+                  </small>
                 </div>
                 
-                {/* Full Original ID Display */}
+                {/* ID Tag */}
                 <span style={{ 
                   background: '#e2e8f0', 
                   color: '#334155', 
                   padding: '4px 8px', 
                   borderRadius: '6px', 
-                  fontSize: '0.8em',
+                  fontSize: '0.85em',
                   fontFamily: 'monospace'
                 }}>
                   {patient.id || patient.patient_id}
@@ -110,7 +112,7 @@ export default function PatientSearch() {
           <p><strong>Name:</strong> {selectedPatient.first_name} {selectedPatient.last_name}</p>
           <p><strong>Email:</strong> {selectedPatient.email || 'N/A'}</p>
           <p><strong>Phone:</strong> {selectedPatient.phone || selectedPatient.phone_number || 'N/A'}</p>
-          <p><strong>Full Patient ID:</strong> <code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px' }}>{selectedPatient.id || selectedPatient.patient_id}</code></p>
+          <p><strong>Patient ID:</strong> <code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px' }}>{selectedPatient.id || selectedPatient.patient_id}</code></p>
         </div>
       )}
     </div>
