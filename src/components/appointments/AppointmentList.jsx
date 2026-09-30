@@ -67,7 +67,7 @@ export default function AppointmentList() {
     const { error } = await supabase
       .from('appointments')
       .update({ 
-        status: 'cancelled', // Lowercase to match DB constraints
+        status: 'cancelled', 
         cancellation_reason: cancelReason 
       })
       .eq('id', id);
@@ -88,7 +88,7 @@ export default function AppointmentList() {
 
   return (
     <div style={{ padding: '20px', background: '#f9f9f9', borderRadius: '8px', border: '1px solid #ddd' }}>
-      <h2>Appointment Management (FR12)</h2>
+      <h2>Appointment Management</h2>
       
       {appointments.length === 0 ? (
         <p>No appointments found in the system.</p>
@@ -105,7 +105,7 @@ export default function AppointmentList() {
                 border: '1px solid #ccc' 
               }}
             >
-              <p><strong>Patient ID:</strong> {appt.patient_id}</p>
+              <p><strong>Patient ID:</strong> #{String(appt.patient_id).substring(0, 8).toUpperCase()}</p>
               <p><strong>Date & Time:</strong> {new Date(appt.appointment_date).toLocaleString()}</p>
               <p>
                 <strong>Status:</strong>{' '}
@@ -118,7 +118,7 @@ export default function AppointmentList() {
                 <p style={{ color: '#666' }}><strong>Reason for Cancellation:</strong> {appt.cancellation_reason}</p>
               )}
 
-              {/* Action Buttons (Properly hidden if the appointment is cancelled) */}
+              {/* Action Buttons (Hidden if cancelled) */}
               {appt.status?.toLowerCase() !== 'cancelled' && (
                 <div style={{ marginTop: '10px' }}>
                   {/* Reschedule Section */}
