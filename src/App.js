@@ -11,7 +11,8 @@ import { supabase } from './supabaseClient';
 import { AuthProvider } from './context/AuthContext';
 import useInactivityLogout from './hooks/useInactivityLogout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
-import Login from './components/auth/Login';
+import Login from './components/auth/Login'; 
+import PatientManagement from './components/admin/PatientManagement';
 
 // Existing feature components
 import PatientRegistration from './components/PatientRegistration';
@@ -81,9 +82,9 @@ function Dashboard() {
 function AdminDashboard() {
   useInactivityLogout();
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial' }}>
+    <div style={{ padding: '20px', fontFamily: 'Arial', maxWidth: '1000px', margin: '0 auto' }}>
       <h1>Admin Dashboard</h1>
-      <p>Admin-only tools will live here (FR04, FR06, FR08).</p>
+      <PatientManagement />
     </div>
   );
 }
