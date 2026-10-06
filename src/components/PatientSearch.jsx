@@ -290,4 +290,4 @@ function Badge({ label, value, color }) {
       {label}: {value}
     </span>
   );
-}
+} 

@@ -7,6 +7,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../supabaseClient';
 
 function Login() {
   const { login } = useAuth();
@@ -24,8 +25,20 @@ function Login() {
 
     try {
       await login(email.trim(), password);
-      // Redirect happens via ProtectedRoute on the destination
-      navigate('/', { replace: true });
+
+      
+      // Look up the user's role, then send them to the right dashboard
+const { data: userData } = await supabase.auth.getUser();
+const userId = userData?.user?.id;
+
+const { data: roleRow } = await supabase
+  .from('user_roles')
+  .select('role')
+  .eq('user_id', userId)
+  .single();
+
+const destination = roleRow?.role === 'admin' ? '/admin' : '/';
+navigate(destination, { replace: true });
     } catch (err) {
       setError('Invalid email or password.');
       console.error('Login error:', err.message);
