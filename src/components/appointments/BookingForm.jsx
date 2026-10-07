@@ -1,8 +1,5 @@
 // src/components/appointments/BookingForm.jsx
 // FR09 - Receptionist books appointments for all patients (new or existing)
-//
-// Structure is intentionally unstyled. Pitch (designer) will style
-// the classNames below when the design system is ready.
 
 import { useEffect, useState } from "react";
 import { supabase } from "../../supabaseClient";
@@ -65,9 +62,24 @@ function BookingForm() {
     setSubmitting(true);
 
     try {
+      // 1. Check for double booking conflicts on the selected practitioner, date, and time
+      const { data: existingBookings, error: checkError } = await supabase
+        .from("appointments")
+        .select("*")
+        .eq("appointment_date", form.appointment_date)
+        .eq("appointment_time", form.appointment_time)
+        .eq("practitioner_id", form.practitioner_id);
+
+      if (checkError) throw checkError;
+
+      const activeConflicts = existingBookings?.filter(app => app.status !== "Cancelled") || [];
+      if (activeConflicts.length > 0) {
+        throw new Error("⚠️️ Double Booking Prevention: This practitioner is already booked at this exact date and time. Please choose another slot.");
+      }
+
       let patientId = form.patient_id;
 
-      // If receptionist selected "New patient", create the patient first
+      // 2. If receptionist selected "New patient", create the patient first
       if (form.patient_mode === "new") {
         const { data: newPatient, error: patientErr } = await supabase
           .from("patients")
@@ -85,7 +97,7 @@ function BookingForm() {
         patientId = newPatient.id;
       }
 
-      // Insert the appointment
+      // 3. Insert the appointment
       const { error: apptErr } = await supabase.from("appointments").insert({
         patient_id: patientId,
         practitioner_id: form.practitioner_id,
@@ -97,8 +109,8 @@ function BookingForm() {
 
       if (apptErr) throw apptErr;
 
-      setMessage("Appointment booked successfully.");
-      // Reset only the appointment-related fields
+      setMessage("Appointment booked successfully and slot verified!");
+      // Reset appointment fields
       setForm({
         ...form,
         practitioner_id: "",
