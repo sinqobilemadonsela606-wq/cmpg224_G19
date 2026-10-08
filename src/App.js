@@ -21,8 +21,8 @@ import BookingForm from './components/appointments/BookingForm';
 
 
 // ---------- Dashboard (any logged-in user) ----------
+// Receptionist dashboard
 function Dashboard() {
-  // FR03 - 30-minute inactivity auto-logout
   useInactivityLogout();
 
   const [patients, setPatients] = useState([]);
@@ -30,10 +30,13 @@ function Dashboard() {
 
   useEffect(() => {
     const fetchPatients = async () => {
-      const { data, error } = await supabase.from('patients').select('*');
+      const { data, error } = await supabase
+        .from('patients')
+        .select('*')
+        .eq('is_active', true);
+
       if (error) {
         console.error('Error fetching patients:', error);
-        alert('Supabase connection error! Check console.');
       } else {
         setPatients(data);
       }
@@ -43,14 +46,14 @@ function Dashboard() {
   }, []);
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial', maxWidth: '800px', margin: '0 auto' }}>
+    <div style={{ padding: '20px', fontFamily: 'Arial', maxWidth: '900px', margin: '0 auto' }}>
       <h1>Clinic Appointment System (CASS)</h1>
 
-      <PatientRegistration />
+      <PatientSearch />
 
       <hr style={{ margin: '40px 0' }} />
 
-      <PatientSearch />
+      <BookingForm />
 
       <hr style={{ margin: '40px 0' }} />
 
@@ -60,28 +63,28 @@ function Dashboard() {
       ) : (
         <ul>
           {patients.map((patient) => (
-            <li key={patient.id || patient.patient_id}>
-              {patient.first_name} {patient.last_name} – {patient.email || 'No email'}
+            <li key={patient.id}>
+              {patient.patient_number} - {patient.first_name} {patient.last_name} - {patient.phone || 'No phone'}
             </li>
           ))}
         </ul>
       )}
-
-      <hr style={{ margin: '40px 0' }} />
-
-      <BookingForm />
-
-      
     </div>
   );
 }
 
-// ---------- Admin dashboard (FR04, FR06, FR08 — coming later) ----------
+// Admin dashboard
 function AdminDashboard() {
   useInactivityLogout();
+
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial', maxWidth: '1000px', margin: '0 auto' }}>
       <h1>Admin Dashboard</h1>
+
+      <PatientRegistration />
+
+      <hr style={{ margin: '40px 0' }} />
+
       <PatientManagement />
     </div>
   );
