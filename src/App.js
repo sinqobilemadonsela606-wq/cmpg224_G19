@@ -18,7 +18,7 @@ import PatientManagement from './components/admin/PatientManagement';
 import PatientRegistration from './components/PatientRegistration';
 import PatientSearch from './components/PatientSearch';
 import BookingForm from './components/appointments/BookingForm';
-import AppointmentList from './components/appointments/AppointmentList';
+
 
 // ---------- Dashboard (any logged-in user) ----------
 function Dashboard() {
@@ -71,9 +71,7 @@ function Dashboard() {
 
       <BookingForm />
 
-      <hr style={{ margin: '40px 0' }} />
-
-      <AppointmentList />
+      
     </div>
   );
 }
