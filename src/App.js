@@ -6,7 +6,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-
+import { exportDailyAppointmentsPDF } from './utils/exportPDF'; //for pdfs
 import { supabase } from './supabaseClient';
 import { AuthProvider } from './context/AuthContext';
 import useInactivityLogout from './hooks/useInactivityLogout';
@@ -77,9 +77,23 @@ function Dashboard() {
 function AdminDashboard() {
   useInactivityLogout();
 
+  function handleTestPDF() {
+    exportDailyAppointmentsPDF('2026-10-09', [
+      { time: '08:00', patientNumber: 'PAT-0001', patient: 'Basiji Ruhiiga', practitioner: 'Dr. A. Mokoena', reason: 'Checkup', status: 'Scheduled' },
+      { time: '09:30', patientNumber: 'PAT-0002', patient: 'Lopez Pitch', practitioner: 'Dr. T. Nkosi', reason: 'Follow-up', status: 'Completed' }
+    ]);
+  }
+
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial', maxWidth: '1000px', margin: '0 auto' }}>
       <h1>Admin Dashboard</h1>
+
+      <button
+        onClick={handleTestPDF}
+        style={{ marginBottom: '20px', padding: '8px 16px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+      >
+        Export Sample PDF
+      </button>
 
       <PatientRegistration />
 
