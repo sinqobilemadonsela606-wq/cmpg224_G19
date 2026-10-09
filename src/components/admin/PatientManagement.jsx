@@ -7,13 +7,14 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
+import EditPatientModal from './EditPatientModal';
 
 export default function PatientManagement() {
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [filter, setFilter] = useState('active'); // 'active' | 'deleted' | 'all'
-
+  const [editTarget, setEditTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -156,21 +157,29 @@ export default function PatientManagement() {
                   )}
                 </td>
                 <td style={{ padding: '10px' }}>
-                  {p.is_active === false ? (
-                    <button
-                      onClick={() => handleRestore(p)}
-                      style={{ padding: '6px 12px', background: '#16a34a', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                    >
-                      Restore
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => setDeleteTarget(p)}
-                      style={{ padding: '6px 12px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                    >
-                      Delete
-                    </button>
-                  )}
+                    {p.is_active === false ? (
+  <button
+    onClick={() => handleRestore(p)}
+    style={{ padding: '6px 12px', background: '#16a34a', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+  >
+    Restore
+  </button>
+) : (
+  <div style={{ display: 'flex', gap: '6px' }}>
+    <button
+      onClick={() => setEditTarget(p)}
+      style={{ padding: '6px 12px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+    >
+      Edit
+    </button>
+    <button
+      onClick={() => setDeleteTarget(p)}
+      style={{ padding: '6px 12px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+    >
+      Delete
+    </button>
+  </div>
+)}
                 </td>
               </tr>
             ))}
@@ -185,7 +194,18 @@ export default function PatientManagement() {
           onConfirm={handleDelete}
           submitting={deleting}
         />
-      )}
+      )} 
+
+      {editTarget && (
+  <EditPatientModal
+    patient={editTarget}
+    onClose={() => setEditTarget(null)}
+    onSaved={async () => {
+      setEditTarget(null);
+      await fetchPatients();
+    }}
+  />
+)}
     </div>
   );
 }
