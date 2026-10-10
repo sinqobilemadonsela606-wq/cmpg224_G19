@@ -63,8 +63,15 @@ function BookingForm() {
     setSubmitting(true);
 
     try {
-      let patientId = form.patient_id;
+      const today = new Date().toISOString().split('T')[0];
+      if (form.appointment_date < today) {
+        setError('Please choose a date in the future.');
+        setSubmitting(false);
+        return;
+      }
 
+      let patientId = form.patient_id; 
+      
       // If receptionist selected "New patient", create the patient first
       if (form.patient_mode === "new") {
         const { data: newPatient, error: patientErr } = await supabase
@@ -149,12 +156,13 @@ function BookingForm() {
         <label>
           Date
           <input
-            type="date"
-            name="appointment_date"
-            value={form.appointment_date}
-            onChange={handleChange}
-            required
-          />
+         type="date"
+         name="appointment_date"
+         value={form.appointment_date}
+         onChange={handleChange}
+         required
+         min={new Date().toISOString().split('T')[0]}
+        />
         </label>
 
         <label>

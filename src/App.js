@@ -16,7 +16,8 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import Login from './components/auth/Login';
 import LogoIntro from './components/LogoIntro';
 import AppHeader from './components/AppHeader';
-
+import BookingForm from './components/appointments/BookingForm'; 
+import AppointmentList from './components/appointments/AppointmentList';
 import PatientManagement from './components/admin/PatientManagement';
 import PatientRegistration from './components/PatientRegistration';
 import PatientSearch from './components/PatientSearch';
@@ -56,7 +57,11 @@ function Dashboard() {
 
         <hr style={{ margin: '40px 0' }} />
 
-        <BookingForm />
+               <BookingForm />
+
+        <hr style={{ margin: '40px 0' }} />
+
+        <AppointmentList />
 
         <hr style={{ margin: '40px 0' }} />
 
