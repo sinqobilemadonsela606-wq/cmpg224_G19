@@ -12,6 +12,13 @@ body {
 
 h1, h2, h3 {
   color: var(--cass-primary-dark);
+  font-family: var(--cass-font-heading);
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
 }
 
 /* Page wrapper */
@@ -126,4 +133,9 @@ h1, h2, h3 {
 .cass-pill-info {
   background: var(--cass-info-bg);
   color: var(--cass-info);
+} 
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

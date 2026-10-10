@@ -8,20 +8,21 @@ export default function LogoIntro({ children }) {
   const [showIntro, setShowIntro] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowIntro(false), 2200);
+    const timer = setTimeout(() => setShowIntro(false), 5500);
     return () => clearTimeout(timer);
   }, []);
 
   if (showIntro) {
     return (
-      <div style={{
-        position: 'fixed', inset: 0, background: '#F5F3F7',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
+            <div style={{
+        position: 'fixed', inset: 0, background: '#e2d8ed',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999,
+        animation: 'fadeIn 0.6s ease-in'
       }}>
         <img
           src={logo}
           alt="CASS"
-          style={{ maxWidth: '320px', width: '70%', opacity: 0.95 }}
+          style={{ maxWidth: '560px', width: '85%', opacity: 0.95 }}
         />
       </div>
     );

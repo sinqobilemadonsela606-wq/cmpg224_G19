@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '../../supabaseClient';
+import PrintableSlip from './PrintableSlip'; 
 
 export default function RescheduleModal({ appointment, onClose, onSaved }) {
   const [practitioners, setPractitioners] = useState([]);
@@ -12,7 +13,8 @@ export default function RescheduleModal({ appointment, onClose, onSaved }) {
   const [date, setDate] = useState(appointment.appointment_date || '');
   const [time, setTime] = useState(() => String(appointment.appointment_time || '').slice(0, 5));
   const [error, setError] = useState('');
-  const [saving, setSaving] = useState(false);
+  const [saving, setSaving] = useState(false); 
+  const [confirmation, setConfirmation] = useState(null);
 
   useEffect(() => {
     loadPractitioners();
@@ -70,8 +72,23 @@ export default function RescheduleModal({ appointment, onClose, onSaved }) {
       return;
     }
 
+        // Fetch the updated appointment with joins for the slip again
+    const { data: slipData } = await supabase
+      .from('appointments')
+      .select(`
+        id, appointment_date, appointment_time, reason, status,
+        patients ( first_name, last_name, patient_number, id_number, phone ),
+        practitioners ( full_name, specialty )
+      `)
+      .eq('id', appointment.id)
+      .maybeSingle();
+
     setSaving(false);
-    onSaved();
+    if (slipData) {
+      setConfirmation(slipData);
+    } else {
+      onSaved();
+    }
   }
 
   return (
@@ -150,10 +167,21 @@ export default function RescheduleModal({ appointment, onClose, onSaved }) {
             </button>
           </div>
         </form>
-      </div>
+      </div> 
+      {confirmation && (
+        <PrintableSlip
+          title="Appointment Rescheduled"
+          appointment={confirmation}
+          onClose={() => {
+            setConfirmation(null);
+            onSaved();
+          }}
+        />
+      )}
     </div>
   );
 }
+   
 
 const inputStyle = {
   display: 'block', width: '100%', padding: '8px',
