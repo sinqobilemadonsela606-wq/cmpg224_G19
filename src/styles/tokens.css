@@ -40,7 +40,8 @@
   --cass-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
   --cass-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
 
-  /* Typography */
-  --cass-font-sans: Arial, Helvetica, sans-serif;
+   /* Typography */
+  --cass-font-sans: 'Inter', 'Segoe UI', Arial, sans-serif;
+  --cass-font-heading: 'Poppins', 'Inter', sans-serif;
   --cass-font-size-base: 15px;
 }

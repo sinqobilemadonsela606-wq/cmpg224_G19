@@ -16,11 +16,12 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import Login from './components/auth/Login';
 import LogoIntro from './components/LogoIntro';
 import AppHeader from './components/AppHeader';
-
+import BookingForm from './components/appointments/BookingForm'; 
+import AppointmentList from './components/appointments/AppointmentList';
 import PatientManagement from './components/admin/PatientManagement';
 import PatientRegistration from './components/PatientRegistration';
 import PatientSearch from './components/PatientSearch';
-import BookingForm from './components/appointments/BookingForm';
+
 
 // ---------- Receptionist dashboard ----------
 function Dashboard() {
@@ -49,29 +50,41 @@ function Dashboard() {
   return (
     <>
       <AppHeader />
-      <div style={{ padding: '20px', fontFamily: 'Arial', maxWidth: '900px', margin: '0 auto' }}>
+            <div style={{ padding: '20px', fontFamily: 'Arial', maxWidth: '900px', margin: '0 auto' }}>
         <h1>Clinic Appointment System (CASS)</h1>
 
-        <PatientSearch />
+        <div id="patient-search">
+          <PatientSearch />
+        </div>
 
         <hr style={{ margin: '40px 0' }} />
 
-        <BookingForm />
+        <div id="booking">
+          <BookingForm />
+        </div>
 
         <hr style={{ margin: '40px 0' }} />
 
-        <h2>All Patients List</h2>
-        {loading ? (
-          <p>Loading patients...</p>
-        ) : (
-          <ul>
-            {patients.map((patient) => (
-              <li key={patient.id}>
-                {patient.patient_number} - {patient.first_name} {patient.last_name} - {patient.phone || 'No phone'}
-              </li>
-            ))}
-          </ul>
-        )}
+        <div id="appointments">
+          <AppointmentList />
+        </div>
+
+        <hr style={{ margin: '40px 0' }} />
+
+        <div id="patient-list">
+          <h2>All Patients List</h2>
+          {loading ? (
+            <p>Loading patients...</p>
+          ) : (
+            <ul>
+              {patients.map((patient) => (
+                <li key={patient.id}>
+                  {patient.patient_number} - {patient.first_name} {patient.last_name} - {patient.phone || 'No phone'}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </>
   );
@@ -91,7 +104,7 @@ function AdminDashboard() {
   return (
     <>
       <AppHeader />
-      <div style={{ padding: '20px', fontFamily: 'Arial', maxWidth: '1000px', margin: '0 auto' }}>
+            <div style={{ padding: '20px', fontFamily: 'Arial', maxWidth: '1000px', margin: '0 auto' }}>
         <h1>Admin Dashboard</h1>
 
         <button
@@ -101,11 +114,22 @@ function AdminDashboard() {
           Export Sample PDF
         </button>
 
-        <PatientRegistration />
+        <div id="register-patient">
+          <PatientRegistration />
+        </div>
 
         <hr style={{ margin: '40px 0' }} />
 
-        <PatientManagement />
+        <div id="patient-management">
+          <PatientManagement />
+        </div>
+
+        <hr style={{ margin: '40px 0' }} />
+
+        <div id="reports">
+          <h2>Reports</h2>
+          <p style={{ color: '#6B6B6B' }}>PDF export is available via the button above. CSV export coming soon.</p>
+        </div>
       </div>
     </>
   );

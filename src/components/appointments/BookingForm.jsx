@@ -4,21 +4,23 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "../../supabaseClient";
+import PrintableSlip from './PrintableSlip';
 
 function BookingForm() {
   // ---------- STATE ----------
   const [practitioners, setPractitioners] = useState([]);
   const [existingPatients, setExistingPatients] = useState([]);
 
-  const [form, setForm] = useState({
+    const [form, setForm] = useState({
     practitioner_id: "",
     appointment_date: "",
     appointment_time: "",
     reason: "",
-    patient_mode: "existing", // "existing" | "new"
+    patient_mode: "existing",
     patient_id: "",
     first_name: "",
     last_name: "",
+    id_number: "",
     phone: "",
     email: "",
     date_of_birth: "",
@@ -26,7 +28,8 @@ function BookingForm() {
 
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const [submitting, setSubmitting] = useState(false); 
+  const [confirmation, setConfirmation] = useState(null);
 
   // ---------- LOAD DATA ON MOUNT ----------
   useEffect(() => {
@@ -62,16 +65,44 @@ function BookingForm() {
     setMessage("");
     setSubmitting(true);
 
-    try {
-      let patientId = form.patient_id;
+        try {
+      const today = new Date().toISOString().split('T')[0];
+      if (form.appointment_date < today) {
+        setError('Please choose a date in the future.');
+        setSubmitting(false);
+        return;
+      }
 
+      if (form.patient_mode === 'new' && form.id_number && !/^\d{13}$/.test(form.id_number)) {
+        setError('SA ID number must be exactly 13 digits.');
+        setSubmitting(false);
+        return;
+      }
+
+      let patientId = form.patient_id;
+      
       // If receptionist selected "New patient", create the patient first
-      if (form.patient_mode === "new") {
+      if (form.patient_mode === "new") { 
+        // Check SA ID uniqueness before insert
+        if (form.id_number) {
+          const { data: existing } = await supabase
+            .from('patients')
+            .select('id')
+            .eq('id_number', form.id_number.trim())
+            .maybeSingle();
+
+          if (existing) {
+            setError('A patient with this SA ID number already exists.');
+            setSubmitting(false);
+            return;
+          }
+        }
         const { data: newPatient, error: patientErr } = await supabase
           .from("patients")
           .insert({
             first_name: form.first_name,
             last_name: form.last_name,
+            id_number: form.id_number.trim() || null,
             phone: form.phone,
             email: form.email,
             date_of_birth: form.date_of_birth || null,
@@ -96,6 +127,22 @@ function BookingForm() {
       if (apptErr) throw apptErr;
 
       setMessage("Appointment booked successfully.");
+            // Fetch the inserted appointment with joins for the printable slip
+      const { data: slipData } = await supabase
+        .from('appointments')
+        .select(`
+          id, appointment_date, appointment_time, reason, status,
+          patients ( first_name, last_name, patient_number, id_number, phone ),
+          practitioners ( full_name, specialty )
+        `)
+        .eq('patient_id', patientId)
+        .eq('appointment_date', form.appointment_date)
+        .eq('appointment_time', form.appointment_time + ':00')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (slipData) setConfirmation(slipData);
       // Reset only the appointment-related fields
       setForm({
         ...form,
@@ -106,6 +153,7 @@ function BookingForm() {
         patient_id: "",
         first_name: "",
         last_name: "",
+        id_number: "",
         phone: "",
         email: "",
         date_of_birth: "",
@@ -149,12 +197,13 @@ function BookingForm() {
         <label>
           Date
           <input
-            type="date"
-            name="appointment_date"
-            value={form.appointment_date}
-            onChange={handleChange}
-            required
-          />
+         type="date"
+         name="appointment_date"
+         value={form.appointment_date}
+         onChange={handleChange}
+         required
+         min={new Date().toISOString().split('T')[0]}
+        />
         </label>
 
         <label>
@@ -240,7 +289,7 @@ function BookingForm() {
               />
             </label>
 
-            <label>
+                     <label>
               Last name
               <input
                 type="text"
@@ -248,6 +297,18 @@ function BookingForm() {
                 value={form.last_name}
                 onChange={handleChange}
                 required
+              />
+            </label>
+
+            <label>
+              SA ID Number
+              <input
+                type="text"
+                name="id_number"
+                value={form.id_number}
+                onChange={handleChange}
+                maxLength={13}
+                placeholder="13 digits"
               />
             </label>
 
@@ -286,7 +347,14 @@ function BookingForm() {
         <button type="submit" disabled={submitting}>
           {submitting ? "Booking..." : "Book Appointment"}
         </button>
-      </form>
+      </form> 
+            {confirmation && (
+        <PrintableSlip
+          title="Appointment Confirmed"
+          appointment={confirmation}
+          onClose={() => setConfirmation(null)}
+        />
+      )}
     </div>
   );
 }
