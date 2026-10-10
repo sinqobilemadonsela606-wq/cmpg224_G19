@@ -1,7 +1,5 @@
 // src/components/appointments/BookingForm.jsx
 // FR09 - Receptionist books appointments for all patients (new or existing)
-//
-// Structure is intentionally unstyled. Pitch (designer) will style
 // the classNames below when the design system is ready.
 
 import { useEffect, useState } from "react";
