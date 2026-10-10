@@ -1,27 +1,28 @@
 // src/App.js
 // Root of the CASS app.
+// - Wraps everything in LogoIntro (startup splash)
 // - Wraps everything in AuthProvider (FR01/FR02)
 // - Sets up routing with /login and protected routes
 // - Calls useInactivityLogout for 30-min auto-logout (FR03)
 
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { exportDailyAppointmentsPDF } from './utils/exportPDF'; //for pdfs
+
+import { exportDailyAppointmentsPDF } from './utils/exportPDF';
 import { supabase } from './supabaseClient';
 import { AuthProvider } from './context/AuthContext';
 import useInactivityLogout from './hooks/useInactivityLogout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
-import Login from './components/auth/Login'; 
-import PatientManagement from './components/admin/PatientManagement';
+import Login from './components/auth/Login';
+import LogoIntro from './components/LogoIntro';
+import AppHeader from './components/AppHeader';
 
-// Existing feature components
+import PatientManagement from './components/admin/PatientManagement';
 import PatientRegistration from './components/PatientRegistration';
 import PatientSearch from './components/PatientSearch';
 import BookingForm from './components/appointments/BookingForm';
 
-
-// ---------- Dashboard (any logged-in user) ----------
-// Receptionist dashboard
+// ---------- Receptionist dashboard ----------
 function Dashboard() {
   useInactivityLogout();
 
@@ -46,34 +47,37 @@ function Dashboard() {
   }, []);
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial', maxWidth: '900px', margin: '0 auto' }}>
-      <h1>Clinic Appointment System (CASS)</h1>
+    <>
+      <AppHeader />
+      <div style={{ padding: '20px', fontFamily: 'Arial', maxWidth: '900px', margin: '0 auto' }}>
+        <h1>Clinic Appointment System (CASS)</h1>
 
-      <PatientSearch />
+        <PatientSearch />
 
-      <hr style={{ margin: '40px 0' }} />
+        <hr style={{ margin: '40px 0' }} />
 
-      <BookingForm />
+        <BookingForm />
 
-      <hr style={{ margin: '40px 0' }} />
+        <hr style={{ margin: '40px 0' }} />
 
-      <h2>All Patients List</h2>
-      {loading ? (
-        <p>Loading patients...</p>
-      ) : (
-        <ul>
-          {patients.map((patient) => (
-            <li key={patient.id}>
-              {patient.patient_number} - {patient.first_name} {patient.last_name} - {patient.phone || 'No phone'}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+        <h2>All Patients List</h2>
+        {loading ? (
+          <p>Loading patients...</p>
+        ) : (
+          <ul>
+            {patients.map((patient) => (
+              <li key={patient.id}>
+                {patient.patient_number} - {patient.first_name} {patient.last_name} - {patient.phone || 'No phone'}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </>
   );
 }
 
-// Admin dashboard
+// ---------- Admin dashboard ----------
 function AdminDashboard() {
   useInactivityLogout();
 
@@ -85,55 +89,60 @@ function AdminDashboard() {
   }
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial', maxWidth: '1000px', margin: '0 auto' }}>
-      <h1>Admin Dashboard</h1>
+    <>
+      <AppHeader />
+      <div style={{ padding: '20px', fontFamily: 'Arial', maxWidth: '1000px', margin: '0 auto' }}>
+        <h1>Admin Dashboard</h1>
 
-      <button
-        onClick={handleTestPDF}
-        style={{ marginBottom: '20px', padding: '8px 16px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-      >
-        Export Sample PDF
-      </button>
+        <button
+          onClick={handleTestPDF}
+          style={{ marginBottom: '20px', padding: '8px 16px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+        >
+          Export Sample PDF
+        </button>
 
-      <PatientRegistration />
+        <PatientRegistration />
 
-      <hr style={{ margin: '40px 0' }} />
+        <hr style={{ margin: '40px 0' }} />
 
-      <PatientManagement />
-    </div>
+        <PatientManagement />
+      </div>
+    </>
   );
 }
 
 // ---------- Root ----------
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
+    <LogoIntro>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<Login />} />
 
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute role="admin">
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute role="admin">
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </LogoIntro>
   );
 }
 

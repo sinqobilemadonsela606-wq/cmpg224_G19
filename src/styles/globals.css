@@ -1,0 +1,129 @@
+/* src/styles/globals.css
+   Base styles and a small set of reusable class names.
+   Components can adopt these gradually. Nothing here changes logic I hope. */
+
+body {
+  background: var(--cass-bg);
+  color: var(--cass-text);
+  font-family: var(--cass-font-sans);
+  font-size: var(--cass-font-size-base);
+  margin: 0;
+}
+
+h1, h2, h3 {
+  color: var(--cass-primary-dark);
+}
+
+/* Page wrapper */
+.cass-page {
+  padding: var(--cass-space-4);
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Card */
+.cass-card {
+  background: var(--cass-surface);
+  border: 1px solid var(--cass-border);
+  border-radius: var(--cass-radius-md);
+  padding: var(--cass-space-4);
+  margin-bottom: var(--cass-space-4);
+  box-shadow: var(--cass-shadow-sm);
+}
+
+/* Button base */
+.cass-btn {
+  display: inline-block;
+  padding: var(--cass-space-2) var(--cass-space-3);
+  border: none;
+  border-radius: var(--cass-radius-sm);
+  font-size: 0.95em;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.cass-btn-primary {
+  background: var(--cass-primary);
+  color: #fff;
+}
+
+.cass-btn-primary:hover {
+  background: var(--cass-primary-dark);
+}
+
+.cass-btn-secondary {
+  background: var(--cass-neutral-mid);
+  color: #fff;
+}
+
+.cass-btn-danger {
+  background: var(--cass-danger);
+  color: #fff;
+}
+
+.cass-btn-success {
+  background: var(--cass-success);
+  color: #fff;
+}
+
+.cass-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Input */
+.cass-input {
+  display: block;
+  width: 100%;
+  padding: var(--cass-space-2);
+  border: 1px solid var(--cass-border);
+  border-radius: var(--cass-radius-sm);
+  font-size: 1rem;
+  box-sizing: border-box;
+  margin-top: var(--cass-space-1);
+}
+
+/* Table */
+.cass-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--cass-surface);
+  border-radius: var(--cass-radius-md);
+  overflow: hidden;
+}
+
+.cass-table th {
+  background: var(--cass-primary-light);
+  text-align: left;
+  padding: var(--cass-space-3);
+  color: var(--cass-primary-dark);
+}
+
+.cass-table td {
+  padding: var(--cass-space-3);
+  border-top: 1px solid var(--cass-border);
+}
+
+/* Status pill */
+.cass-pill {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.85em;
+  font-weight: bold;
+}
+
+.cass-pill-success {
+  background: var(--cass-success-bg);
+  color: var(--cass-success);
+}
+
+.cass-pill-danger {
+  background: var(--cass-danger-bg);
+  color: var(--cass-danger);
+}
+
+.cass-pill-info {
+  background: var(--cass-info-bg);
+  color: var(--cass-info);
+}

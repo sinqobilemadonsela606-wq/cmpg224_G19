@@ -1,0 +1,46 @@
+/* src/styles/tokens.css
+   Global design tokens for CASS.
+   Components will gradually reference these variables. */
+
+:root {
+  /* Colors - palette from the design reference */
+  --cass-primary: #6B5876;
+  --cass-primary-dark: #5A4A63;
+  --cass-primary-light: #E8E4EC;
+  --cass-neutral-mid: #9A9298;
+  --cass-surface: #FFFFFF;
+  --cass-bg: #F5F3F7;
+  --cass-border: #DDD8E0;
+  --cass-text: #2B2B2B;
+  --cass-text-muted: #6B6B6B;
+
+  /* Status colors */
+  --cass-success: #166534;
+  --cass-success-bg: #DCFCE7;
+  --cass-danger: #991B1B;
+  --cass-danger-bg: #FEE2E2;
+  --cass-info: #1E40AF;
+  --cass-info-bg: #DBEAFE;
+  --cass-warning: #92400E;
+  --cass-warning-bg: #FEF3C7;
+
+  /* Spacing scale */
+  --cass-space-1: 4px;
+  --cass-space-2: 8px;
+  --cass-space-3: 16px;
+  --cass-space-4: 24px;
+  --cass-space-5: 32px;
+
+  /* Radius */
+  --cass-radius-sm: 4px;
+  --cass-radius-md: 8px;
+  --cass-radius-lg: 12px;
+
+  /* Shadow */
+  --cass-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --cass-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  /* Typography */
+  --cass-font-sans: Arial, Helvetica, sans-serif;
+  --cass-font-size-base: 15px;
+}
